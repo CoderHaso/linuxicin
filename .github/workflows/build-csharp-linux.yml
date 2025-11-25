@@ -1,0 +1,45 @@
+name: Build C# Linux Executable
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Mono
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mono-complete
+    
+    - name: Create logo.ico from logo.png
+      run: |
+        sudo apt-get install -y python3 python3-pip
+        pip3 install pillow
+        python3 -c "from PIL import Image; img = Image.open('logo.png'); img.save('logo.ico', format='ICO', sizes=[(16,16),(32,32),(48,48),(64,64)])"
+      continue-on-error: true
+    
+    - name: Build C# executable
+      run: |
+        mcs -target:winexe \
+          -r:System.Windows.Forms.dll \
+          -r:System.Drawing.dll \
+          -out:VALORANT.exe \
+          TaskbarApp.cs
+    
+    - name: Make executable
+      run: |
+        chmod +x VALORANT.exe
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: VALORANT-Linux
+        path: VALORANT.exe
+        retention-days: 30
+
