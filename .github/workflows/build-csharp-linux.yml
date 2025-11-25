@@ -36,10 +36,22 @@ jobs:
       run: |
         chmod +x VALORANT.exe
     
+    - name: Create package
+      run: |
+        mkdir -p VALORANT-package
+        cp VALORANT.exe VALORANT-package/
+        if [ -f logo.ico ]; then
+          cp logo.ico VALORANT-package/
+        fi
+        echo "#!/bin/bash" > VALORANT-package/run.sh
+        echo "mono VALORANT.exe" >> VALORANT-package/run.sh
+        chmod +x VALORANT-package/run.sh
+        echo "README: Linux'ta çalıştırmak için: ./run.sh veya mono VALORANT.exe" > VALORANT-package/README.txt
+    
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: VALORANT-Linux
-        path: VALORANT.exe
+        path: VALORANT-package/
         retention-days: 30
 
